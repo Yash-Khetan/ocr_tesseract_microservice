@@ -1,1 +1,1 @@
-tesseract-cr
+tesseract-ocr
