@@ -6,6 +6,7 @@ import pytesseract
 import re, json
 
 app = FastAPI(title="OCR Business Card Extractor")
+pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'  # 👈 ensures correct path
 
 # --- Extraction Logic ---
 def extract(text: str):
