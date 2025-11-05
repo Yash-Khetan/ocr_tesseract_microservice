@@ -13,30 +13,43 @@ def extract(text: str):
     lines = [l.strip() for l in re.split(r'[\n\r|]+', text) if l.strip()]
     joined = " ".join(lines)
 
+    # --- Regex Patterns (converted and fixed) ---
+    company_name_pattern = r"^([\w0-9&.,\-()'\s]+)(\s(Pvt|PVT|Ltd|LLP|Inc|Corp|Co\.|Corporation|Company|Solutions?|Tooling?|Services?|Consultants?|International|Associates|Group|Limited|Enterprises|Industries|Technologies|Partners?))?$"
+    name_pattern = r"([A-Z][a-zA-Z'\-\.]+(?:\s[A-Z][a-zA-Z'\-\.]+)*)"
+    phone_pattern = r"(\+?\d{1,2}\s?)?(\(?\d{3}\)?[\s-]?)?\d{3}[\s-]?\d{4}"
+    mobile_pattern = r"(?i)(?:\b(?:cell|mobile|mob|m|M|\(M\))[\s:]*)?(\+91[\-\s]?)?[6789]\d{4}[\s]?\d{5}|\(?\d{3,4}\)?[\s.-]?\d{6,7}"
+    email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+    website_pattern = r"(?:www|http|https)(?::\/\/|\.)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?"
+    postal_code_pattern = r"^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$"
+    job_title_pattern = r"\b(?:Manager|Director|Engineer|Consultant|Developer|Analyst|Executive|Designer|Lead|Specialist|Officer)\b"
+    linkedin_pattern = r"(?:linkedin\.com\/in\/[a-zA-Z0-9_-]+)"
+    twitter_pattern = r"(?:twitter\.com\/[a-zA-Z0-9_]+)"
+    facebook_pattern = r"(?:facebook\.com\/[a-zA-Z0-9._-]+)"
+
     # Emails
-    emails = re.findall(r'[\w\.-]+@[\w\.-]+\.\w+', joined)
+    emails = re.findall(email_pattern, joined)
 
     # Phones
-    phones = re.findall(r'\+?\d[\d\-\s]{5,}\d', joined)
+    phones = re.findall(phone_pattern, joined)
     phones = list({re.sub(r'[\s\-]+', ' ', p).strip() for p in phones})
 
     # Pincodes
-    pincodes = re.findall(r'\b\d{6}\b', joined)
+    pincodes = re.findall(postal_code_pattern, joined)
 
     # Company
     company = None
-    m = re.search(r'(?:www\.|https?://)?([A-Za-z0-9\.\-]+\.(?:com|in|co\.in|net|org))', joined)
+    m = re.search(website_pattern, joined)
     if m:
-        company = m.group(1).replace('www.', '')
+        company = m.group(0).replace('www.', '')
     if not company:
         for l in lines:
-            if re.search(r'\b(Service|Solutions|Services|Corp|Company|Tree|Pvt|Ltd|LLP|Inc)\b', l, re.I):
+            if re.search(r'\b(Service|Solutions|Corp|Company|Tree|Pvt|Ltd|LLP|Inc)\b', l, re.I):
                 company = re.sub(r'[^A-Za-z0-9 &]', ' ', l).strip()
                 break
 
     # Name
     name = None
-    m = re.search(r'\b([A-Z][a-z]{2,}\s[A-Z][a-z]{2,})\b', joined)
+    m = re.search(name_pattern, joined)
     if m:
         name = m.group(1)
     else:
@@ -46,7 +59,7 @@ def extract(text: str):
 
     # Role
     role = None
-    m = re.search(r'\b(Marketing Executive|Director|Manager|CEO|CTO|Founder)\b', joined, re.I)
+    m = re.search(job_title_pattern, joined, re.I)
     if m:
         role = m.group(1)
 
@@ -69,6 +82,7 @@ def extract(text: str):
         "pincodes": pincodes,
         "address": addr,
     }
+
 
 
 # --- OCR Endpoint ---
