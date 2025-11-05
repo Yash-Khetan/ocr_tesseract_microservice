@@ -26,12 +26,14 @@ def extract(text: str):
     twitter_pattern = r"(?:twitter\.com\/[a-zA-Z0-9_]+)"
     facebook_pattern = r"(?:facebook\.com\/[a-zA-Z0-9._-]+)"
 
+    # --- Field Extraction ---
     # Emails
     emails = re.findall(email_pattern, joined)
 
-    # Phones
+    # Phones (general + mobile)
     phones = re.findall(phone_pattern, joined)
-    phones = list({re.sub(r'[\s\-]+', ' ', p).strip() for p in phones})
+    mobiles = re.findall(mobile_pattern, joined)
+    all_phones = list({re.sub(r'[\s\-]+', ' ', p).strip() for p in phones + mobiles if p})
 
     # Pincodes
     pincodes = re.findall(postal_code_pattern, joined)
@@ -57,7 +59,7 @@ def extract(text: str):
         if m:
             name = m.group(1)
 
-    # Role
+    # Role / Designation
     role = None
     m = re.search(job_title_pattern, joined, re.I)
     if m:
@@ -73,14 +75,23 @@ def extract(text: str):
             addr_block = addr_block + (' ' + pincodes[0] if pincodes else '')
         addr = re.sub(r'\s{2,}', ' ', addr_block).strip()
 
+    # Social Links
+    linkedin = re.findall(linkedin_pattern, joined)
+    twitter = re.findall(twitter_pattern, joined)
+    facebook = re.findall(facebook_pattern, joined)
+
+    # --- Return structured data ---
     return {
         "name": name,
         "role": role,
         "company": company,
         "emails": emails,
-        "phones": phones,
+        "phones": all_phones,
         "pincodes": pincodes,
         "address": addr,
+        "linkedin": linkedin,
+        "twitter": twitter,
+        "facebook": facebook
     }
 
 
