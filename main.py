@@ -32,28 +32,28 @@ def extract(text: str):
 
     # Phones (general + mobile)
     phones = re.findall(phone_pattern, joined)
-mobiles = re.findall(mobile_pattern, joined)
+    mobiles = re.findall(mobile_pattern, joined)
 
-# Flatten tuples returned by re.findall (if any)
-flat_phones = []
-for p in phones:
-    if isinstance(p, tuple):
-        flat_phones.append("".join(p))
-    else:
-        flat_phones.append(p)
-
-flat_mobiles = []
-for m in mobiles:
-    if isinstance(m, tuple):
-        flat_mobiles.append("".join(m))
-    else:
-        flat_mobiles.append(m)
-
-# Clean + deduplicate
-all_phones = list({
-    re.sub(r'[\s\-]+', ' ', num).strip()
-    for num in flat_phones + flat_mobiles if num.strip()
-})
+    # Flatten tuples returned by re.findall (if any)
+    flat_phones = []
+    for p in phones:
+        if isinstance(p, tuple):
+            flat_phones.append("".join(p))
+        else:
+            flat_phones.append(p)
+    
+    flat_mobiles = []
+    for m in mobiles:
+        if isinstance(m, tuple):
+            flat_mobiles.append("".join(m))
+        else:
+            flat_mobiles.append(m)
+    
+    # Clean + deduplicate
+    all_phones = list({
+        re.sub(r'[\s\-]+', ' ', num).strip()
+        for num in flat_phones + flat_mobiles if num.strip()
+    })
 
 
     # Pincodes
